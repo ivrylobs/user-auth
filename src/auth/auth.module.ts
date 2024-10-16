@@ -9,6 +9,8 @@ import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 import { MailModule } from '../mail/mail.module';
 import { SessionModule } from '../session/session.module';
 import { UsersModule } from '../users/users.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AllConfigType } from '../config/config.type';
 
 @Module({
   imports: [
@@ -16,7 +18,28 @@ import { UsersModule } from '../users/users.module';
     SessionModule,
     PassportModule,
     MailModule,
-    JwtModule.register({}),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService<AllConfigType>) => ({
+        privateKey: configService
+          .getOrThrow('auth.privateKey', {
+            infer: true,
+          })
+          .replace(/\\\\n/gm, '\\n'),
+        publicKey: configService
+          .getOrThrow('auth.publicKey', {
+            infer: true,
+          })
+          .replace(/\\\\n/gm, '\\n'),
+        signOptions: {
+          expiresIn: configService.getOrThrow('auth.expires', {
+            infer: true,
+          }),
+          algorithm: 'RS256',
+        },
+      }),
+    }),
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, JwtRefreshStrategy, AnonymousStrategy],

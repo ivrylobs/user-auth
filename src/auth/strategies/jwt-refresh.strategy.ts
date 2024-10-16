@@ -14,7 +14,11 @@ export class JwtRefreshStrategy extends PassportStrategy(
   constructor(configService: ConfigService<AllConfigType>) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: configService.get('auth.refreshSecret', { infer: true }),
+      secretOrKey: configService
+        .getOrThrow('auth.privateKey', {
+          infer: true,
+        })
+        .replace(/\\\\n/gm, '\\n'),
     });
   }
 

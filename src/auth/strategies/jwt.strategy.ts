@@ -11,7 +11,12 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(configService: ConfigService<AllConfigType>) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: configService.get('auth.secret', { infer: true }),
+      secretOrKey: configService
+        .getOrThrow('auth.privateKey', {
+          infer: true,
+        })
+        .replace(/\\\\n/gm, '\\n'),
+      algorithms: ['RS256'],
     });
   }
 

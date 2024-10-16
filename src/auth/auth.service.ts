@@ -210,9 +210,6 @@ export class AuthService {
         confirmEmailUserId: user.id,
       },
       {
-        secret: this.configService.getOrThrow('auth.confirmEmailSecret', {
-          infer: true,
-        }),
         expiresIn: this.configService.getOrThrow('auth.confirmEmailExpires', {
           infer: true,
         }),
@@ -233,11 +230,7 @@ export class AuthService {
     try {
       const jwtData = await this.jwtService.verifyAsync<{
         confirmEmailUserId: User['id'];
-      }>(hash, {
-        secret: this.configService.getOrThrow('auth.confirmEmailSecret', {
-          infer: true,
-        }),
-      });
+      }>(hash);
 
       userId = jwtData.confirmEmailUserId;
     } catch {
@@ -276,11 +269,7 @@ export class AuthService {
       const jwtData = await this.jwtService.verifyAsync<{
         confirmEmailUserId: User['id'];
         newEmail: User['email'];
-      }>(hash, {
-        secret: this.configService.getOrThrow('auth.confirmEmailSecret', {
-          infer: true,
-        }),
-      });
+      }>(hash);
 
       userId = jwtData.confirmEmailUserId;
       newEmail = jwtData.newEmail;
@@ -333,9 +322,6 @@ export class AuthService {
         forgotUserId: user.id,
       },
       {
-        secret: this.configService.getOrThrow('auth.forgotSecret', {
-          infer: true,
-        }),
         expiresIn: tokenExpiresIn,
       },
     );
@@ -355,11 +341,7 @@ export class AuthService {
     try {
       const jwtData = await this.jwtService.verifyAsync<{
         forgotUserId: User['id'];
-      }>(hash, {
-        secret: this.configService.getOrThrow('auth.forgotSecret', {
-          infer: true,
-        }),
-      });
+      }>(hash);
 
       userId = jwtData.forgotUserId;
     } catch {
@@ -467,9 +449,6 @@ export class AuthService {
           newEmail: userDto.email,
         },
         {
-          secret: this.configService.getOrThrow('auth.confirmEmailSecret', {
-            infer: true,
-          }),
           expiresIn: this.configService.getOrThrow('auth.confirmEmailExpires', {
             infer: true,
           }),
@@ -557,26 +536,17 @@ export class AuthService {
     const tokenExpires = Date.now() + ms(tokenExpiresIn);
 
     const [token, refreshToken] = await Promise.all([
-      await this.jwtService.signAsync(
-        {
-          id: data.id,
-          role: data.role,
-          sessionId: data.sessionId,
-        },
-        {
-          secret: this.configService.getOrThrow('auth.secret', { infer: true }),
-          expiresIn: tokenExpiresIn,
-        },
-      ),
+      await this.jwtService.signAsync({
+        id: data.id,
+        role: data.role,
+        sessionId: data.sessionId,
+      }),
       await this.jwtService.signAsync(
         {
           sessionId: data.sessionId,
           hash: data.hash,
         },
         {
-          secret: this.configService.getOrThrow('auth.refreshSecret', {
-            infer: true,
-          }),
           expiresIn: this.configService.getOrThrow('auth.refreshExpires', {
             infer: true,
           }),
