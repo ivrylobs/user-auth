@@ -1,5 +1,6 @@
 import 'reflect-metadata';
-import { DataSource, DataSourceOptions } from 'typeorm';
+import { DataSource } from 'typeorm';
+import { MysqlConnectionOptions } from 'typeorm/driver/mysql/MysqlConnectionOptions';
 
 export const AppDataSource = new DataSource({
   type: process.env.DATABASE_TYPE,
@@ -25,9 +26,9 @@ export const AppDataSource = new DataSource({
   extra: {
     // based on https://node-postgres.com/api/pool
     // max connection pool size
-    max: process.env.DATABASE_MAX_CONNECTIONS
-      ? parseInt(process.env.DATABASE_MAX_CONNECTIONS, 10)
-      : 100,
+    // max: process.env.DATABASE_MAX_CONNECTIONS
+    //   ? parseInt(process.env.DATABASE_MAX_CONNECTIONS, 10)
+    //   : 100,
     ssl:
       process.env.DATABASE_SSL_ENABLED === 'true'
         ? {
@@ -39,4 +40,4 @@ export const AppDataSource = new DataSource({
           }
         : undefined,
   },
-} as DataSourceOptions);
+} as MysqlConnectionOptions);
