@@ -1,11 +1,10 @@
 services:
-  mariadb:
+  db:
     image: mariadb:lts
     ports:
       - ${DATABASE_PORT}:3306
     volumes:
-      - ./db/data:/var/lib/mysql/data
-      - ./db/config/:/etc/mysql
+      - ./db/data:/var/lib/mysql/
     environment:
       MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
 
@@ -16,6 +15,8 @@ services:
     ports:
       - ${MAIL_CLIENT_PORT}:1080
       - ${MAIL_PORT}:1025
+    volumes:
+      - ./mail-tmp/:/tmp
 
   adminer:
     image: adminer
