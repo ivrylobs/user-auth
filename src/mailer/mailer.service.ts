@@ -15,10 +15,13 @@ export class MailerService {
       ignoreTLS: configService.get('mail.ignoreTLS', { infer: true }),
       secure: configService.get('mail.secure', { infer: true }),
       requireTLS: configService.get('mail.requireTLS', { infer: true }),
-      auth: {
-        user: configService.get('mail.user', { infer: true }),
-        pass: configService.get('mail.password', { infer: true }),
-      },
+      auth:
+        process.env.NODE_ENV !== 'production'
+          ? null
+          : {
+              user: configService.get('mail.user', { infer: true }),
+              pass: configService.get('mail.password', { infer: true }),
+            },
     });
   }
 
