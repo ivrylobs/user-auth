@@ -11,6 +11,8 @@ import {
   HttpStatus,
   HttpCode,
   SerializeOptions,
+  Request,
+  ForbiddenException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -37,7 +39,7 @@ import { RolesGuard } from '../roles/roles.guard';
 import { infinityPagination } from '../utils/infinity-pagination';
 
 @ApiBearerAuth()
-@Roles(RoleEnum.admin)
+@Roles(RoleEnum.user)
 @UseGuards(AuthGuard('jwt'), RolesGuard)
 @ApiTags('Users')
 @Controller({
@@ -122,7 +124,10 @@ export class UsersController {
   update(
     @Param('id') id: User['id'],
     @Body() updateProfileDto: UpdateUserDto,
+    @Request() request,
   ): Promise<User | null> {
+    if (request.user.id !== id)
+      throw new ForbiddenException('You can only update your own profile.');
     return this.usersService.update(id, updateProfileDto);
   }
 
@@ -133,7 +138,9 @@ export class UsersController {
     required: true,
   })
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id') id: User['id']): Promise<void> {
+  remove(@Param('id') id: User['id'], @Request() request): Promise<void> {
+    if (request.user.id !== id)
+      throw new ForbiddenException('You can only remove your own profile.');
     return this.usersService.remove(id);
   }
 }
